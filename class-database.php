@@ -9,7 +9,10 @@ class sql {
     var $attempt = null;
     var $take;
     var $transaction;
-
+    var $cachestatus=false;
+    var $cachetime = 60;
+    var $cachefolder = "cachex";
+    
     function __construct($host, $user, $pass, $db, $warn = "", $transaction = false) {
 
         $this->attempt = new mysqli($host, $user, $pass, $db);
@@ -25,7 +28,31 @@ class sql {
         }
 
         $this->attempt->query("set names utf8");
-        $this->attempt->query("set sql_mode='';");
+        //$this->attempt->query("set sql_mode='';");
+    }
+    
+    function set_cachefolder($folder){
+        $this->cachefolder=$folder;
+    }
+    
+    function get_cachefolder(){
+        return $this->cachefolder;
+    }
+    
+    function set_cachestatus($swt){
+        $this->cachestatus=$swt;
+    }
+    
+    function get_cachestatus(){
+        return $this->cachestatus;
+    }
+    
+    function set_cachetime($second){
+        $this->cachetime=$second * 60;
+    }
+    
+    function get_cachetime(){
+        return $this->cachetime;
     }
     
     function query($qry) {
@@ -35,7 +62,7 @@ class sql {
     function select($table, $cells, $query2, $warn = "", $debug = false) {
 
         if ($debug == true) {
-            print "<div style='display:none' class='debug'>set sql_mode=''; select $cells from $table $query2</div>";
+            print "<div style='display:none' class='debug'>select $cells from $table $query2</div>";
         }
 
         $take = $this->attempt->query("select $cells from $table $query2");
@@ -122,7 +149,7 @@ class sql {
         $values = substr($values, 0, -1);
 
         if ($debug == true) {
-            print "<div style='display:none' class='debug'>set sql_mode=''; INSERT INTO $table ($cells) values ($values) $query2</div>";
+            print "<div style='display:none' class='debug'>INSERT INTO $table ($cells) values ($values) $query2</div>";
         }
         else {
             $insert = $this->attempt->query("INSERT INTO $table ($cells) values ($values) $query2");
@@ -157,7 +184,7 @@ class sql {
             $update = $this->attempt->query("update $table set $cellvalues $query2");
         }
         else {
-            print "<div style='display:none' class='debug'>set sql_mode=''; update $table set $cellvalues $query2</div>";
+            print "<div style='display:none' class='debug'>update $table set $cellvalues $query2</div>";
         }
 
         if (!$update) {
@@ -175,7 +202,7 @@ class sql {
             $delete = $this->attempt->query("delete from $table $query2");
         }
         else {
-            print "<div style='display:none' class='debug'>set sql_mode=''; delete from $table $query2</div>";
+            print "<div style='display:none' class='debug'>delete from $table $query2</div>";
         }
 
         if (!$delete) {
@@ -204,7 +231,7 @@ class sql {
         global $settings;
 
         if ($debug === true) {
-            print "<div style='display:none' class='debug'>set sql_mode=''; select $cells from $table $query2</div>";
+            print "<div style='display:none' class='debug'>select $cells from $table $query2</div>";
         }
 
         $queryz = "select $cells from $table $query2";
@@ -219,10 +246,10 @@ class sql {
         }
 
         if ($timex == false) {
-            $cachet = $settings[1]['cachetime'] * 60; // dakika
+            $cachet = $settings[1]['cachetime'] * 60; // minute
         }
         else {
-            $cachet = $timex * 60; // dakika
+            $cachet = $timex * 60; // minute
         }
 
 
@@ -266,11 +293,11 @@ class sql {
         return $this->attempt->insert_id;
     }
 
-    function num_rowz($quer) {
+    function rows_count($quer) {
         return $quer->num_rows;
     }
 
-    function fetch_rowz($quer) {
+    function fetch_rows($quer) {
         return $quer->fetch_row();
     }
 
