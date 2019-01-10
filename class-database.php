@@ -28,7 +28,7 @@ class sql {
         $this->attempt->query("set sql_mode='';");
     }
     
-    function qry($qry) {
+    function query($qry) {
         $this->attempt->query($qry);
     }
 
