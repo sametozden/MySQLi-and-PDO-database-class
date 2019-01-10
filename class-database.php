@@ -9,10 +9,10 @@ class sql {
     var $attempt = null;
     var $take;
     var $transaction;
-    var $cachestatus=false;
+    var $cachestatus = false;
     var $cachetime = 60;
     var $cachefolder = "cachex";
-    
+
     function __construct($host, $user, $pass, $db, $warn = "", $transaction = false) {
 
         $this->attempt = new mysqli($host, $user, $pass, $db);
@@ -30,31 +30,31 @@ class sql {
         $this->attempt->query("set names utf8");
         //$this->attempt->query("set sql_mode='';");
     }
-    
-    function set_cachefolder($folder){
-        $this->cachefolder=$folder;
+
+    function set_cachefolder($folder) {
+        $this->cachefolder = $folder;
     }
-    
-    function get_cachefolder(){
+
+    function get_cachefolder() {
         return $this->cachefolder;
     }
-    
-    function set_cachestatus($swt){
-        $this->cachestatus=$swt;
+
+    function set_cachestatus($swt) {
+        $this->cachestatus = $swt;
     }
-    
-    function get_cachestatus(){
+
+    function get_cachestatus() {
         return $this->cachestatus;
     }
-    
-    function set_cachetime($second){
-        $this->cachetime=$second * 60;
+
+    function set_cachetime($second) {
+        $this->cachetime = $second * 60;
     }
-    
-    function get_cachetime(){
+
+    function get_cachetime() {
         return $this->cachetime;
     }
-    
+
     function query($qry) {
         $this->attempt->query($qry);
     }
@@ -62,7 +62,7 @@ class sql {
     function select($table, $cells, $query2, $warn = "", $debug = false) {
 
         if ($debug == true) {
-            print "<div style='display:none' class='debug'>select $cells from $table $query2</div>";
+            $this->debug("select $cells from $table $query2");
         }
 
         $take = $this->attempt->query("select $cells from $table $query2");
@@ -149,7 +149,7 @@ class sql {
         $values = substr($values, 0, -1);
 
         if ($debug == true) {
-            print "<div style='display:none' class='debug'>INSERT INTO $table ($cells) values ($values) $query2</div>";
+            $this->debug("INSERT INTO $table ($cells) values ($values) $query2");
         }
         else {
             $insert = $this->attempt->query("INSERT INTO $table ($cells) values ($values) $query2");
@@ -184,7 +184,7 @@ class sql {
             $update = $this->attempt->query("update $table set $cellvalues $query2");
         }
         else {
-            print "<div style='display:none' class='debug'>update $table set $cellvalues $query2</div>";
+            $this->debug("update $table set $cellvalues $query2");
         }
 
         if (!$update) {
@@ -202,7 +202,7 @@ class sql {
             $delete = $this->attempt->query("delete from $table $query2");
         }
         else {
-            print "<div style='display:none' class='debug'>delete from $table $query2</div>";
+            $this->debug("delete from $table $query2");
         }
 
         if (!$delete) {
@@ -219,41 +219,31 @@ class sql {
         $exp = addslashes($sql);
         $path = addslashes($_SERVER["REQUEST_URI"]);
         $ip = $_SERVER["REMOTE_ADDR"];
-        if(strpos($path, "favicon") == false) {
-            $this->attempt->query("INSERT INTO sql_error (datex,ip,typex,esql,pathh) values ('$d','$ip','$type','$exp','$path')");
+        if (strpos($path, "favicon") == false) {
+            $this->attempt->query("INSERT INTO sql_error (processdate,ip,processtype,errorsql,filepath) values ('$d','$ip','$type','$exp','$path')");
         }
     }
 
-    
-    function get_cache($table, $cells, $query2, $warn = "", $debug = false, $single = "read", $join = false, $filenameseperate = "", $timex = false, $forcecache = false) {
-
-        global $cacheopen;
-        global $settings;
+    function get_cache($table, $cells, $query2, $warn = "", $debug = false, $single = "read", $join = false, $filenameseperate = "", $timex = false) {
 
         if ($debug === true) {
-            print "<div style='display:none' class='debug'>select $cells from $table $query2</div>";
+            $this->debug("select $cells from $table $query2");
         }
 
         $queryz = "select $cells from $table $query2";
         $md5 = md5($queryz);
-        $cachefile = "cachex/db-$filenameseperate-$md5.html";
+        $cachefile = $this->cachefolder . "/db-$filenameseperate-$md5.html";
 
-        if ($forcecache == true) {
-            $cacheop = 1;
-        }
-        else {
-            $cacheop = $cacheopen;
-        }
 
         if ($timex == false) {
-            $cachet = $settings[1]['cachetime'] * 60; // minute
+            $cachetime = $this->get_cachetime();
         }
         else {
-            $cachet = $timex * 60; // minute
+            $cachetime = $timex * 60; // minute
         }
 
 
-        if ($cacheop == 1 && file_exists($cachefile) && (time() - $cachet < filemtime($cachefile))) {
+        if ($this->get_cachestatus() && file_exists($cachefile) && (time() - $cachetime < filemtime($cachefile))) {
             return unserialize(file_get_contents($cachefile));
         }
         else {
@@ -271,8 +261,11 @@ class sql {
             return $newreads;
         }
     }
-    
-    
+
+    function debug($sql) {
+        echo "<div style='display:none' class='debug'>$sql</div>";
+    }
+
     function close() {
         $this->attempt->close();
     }
