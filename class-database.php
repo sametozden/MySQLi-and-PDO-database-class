@@ -28,7 +28,6 @@ class sql {
         }
 
         $this->attempt->query("set names utf8");
-        //$this->attempt->query("set sql_mode='';");
     }
 
     function set_cachefolder($folder) {
@@ -55,8 +54,8 @@ class sql {
         return $this->cachetime;
     }
 
-    function query($qry) {
-        $this->attempt->query($qry);
+    function qry($sql) {
+        $this->attempt->query($sql);
     }
 
     function select($table, $cells, $query2, $warn = "", $debug = false) {
@@ -103,7 +102,7 @@ class sql {
 
         if (!$result) {
             $this->error_log("readall", $this->attempt->error);
-            return $returnedvar = array(false, $warn);
+            return $returnedvar = array(false);
         }
         else {
 
@@ -134,7 +133,6 @@ class sql {
         $values = "";
 
         foreach ($val as $k => $v) {
-
             $cells.="$k,";
             if ($v != "null") {
                 $values.="'$v',";
@@ -143,7 +141,6 @@ class sql {
                 $values.="null,";
             }
         }
-
 
         $cells = substr($cells, 0, -1);
         $values = substr($values, 0, -1);
@@ -215,13 +212,11 @@ class sql {
     }
 
     function error_log($type, $sql) {
-        $d = date("d/m/Y - H:i:s");
+        $d = time();
         $exp = addslashes($sql);
         $path = addslashes($_SERVER["REQUEST_URI"]);
         $ip = $_SERVER["REMOTE_ADDR"];
-        if (strpos($path, "favicon") == false) {
-            $this->attempt->query("INSERT INTO sql_error (processdate,ip,processtype,errorsql,filepath) values ('$d','$ip','$type','$exp','$path')");
-        }
+        $this->attempt->query("INSERT INTO sql_error (processdate,ip,processtype,errorsql,filepath) values ('$d','$ip','$type','$exp','$path')");
     }
 
     function get_cache($table, $cells, $query2, $warn = "", $debug = false, $single = "read", $join = false, $filenameseperate = "", $timex = false) {
@@ -234,14 +229,7 @@ class sql {
         $md5 = md5($queryz);
         $cachefile = $this->cachefolder . "/db-$filenameseperate-$md5.html";
 
-
-        if ($timex == false) {
-            $cachetime = $this->get_cachetime();
-        }
-        else {
-            $cachetime = $timex * 60; // minute
-        }
-
+        $cachetime = ($timex == false) ? $this->get_cachetime() : $timex * 60;
 
         if ($this->get_cachestatus() && file_exists($cachefile) && (time() - $cachetime < filemtime($cachefile))) {
             return unserialize(file_get_contents($cachefile));
