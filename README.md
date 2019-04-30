@@ -200,7 +200,18 @@ $readcache[1]
 
 ```
 
+## Get Rows Count
 
+```php
+
+$select = $connect->select("yourtable", "name,age" , " where id='5' ", "error occured", false);
+$rowscount = $connect->rows_count($select);
+
+echo $rowscount;  // for example: 45 (integer)
+
+
+
+```
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
