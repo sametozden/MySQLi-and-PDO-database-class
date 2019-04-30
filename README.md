@@ -28,30 +28,6 @@ $connect->set_cachetime(60); // cache files will save 60 minutes in cache folder
 
 
 
-## Update Record
-
-| Parameters  | Type | Description |
-| ------------- | ------------- | ------------- |
-| table name  | string  | your table name |
-| fieldname and data | array | values add to the table |
-| warning message | string | if error occurs you will get the this message |
-| debug | boolean | full sql queries print to the screen in the display=none div |
-
-
-```php
-
-$stack = array("fieldname" => "value", "fieldname2" => "null", "fieldname3" => time());
-$insert = $connect->insert("yourtable", $stack, "error occured", false);
-
-// return values
-$insert[0] // true or false
-$insert[1] // if data cant update to the table, then you will show the 'warning message' here
-
-```
-
-
-
-
 
 
 ## Insert Record
