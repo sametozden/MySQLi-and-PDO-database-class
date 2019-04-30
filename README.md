@@ -159,6 +159,49 @@ $readrows[1]
 
 
 
+
+## Cache System
+
+Cache method improve your system performance. If you should open the cache status open with $connect->set_cachestatus(true) parameter, you can use cache method.
+
+
+| Parameters  | Type | Description |
+| ------------- | ------------- | ------------- |
+| table name  | string  | your table name |
+| fieldname and data | array | values add to the table |
+| additional query | string | optional query |
+| warning message | string | if error occurs you will get the this message |
+| debug | boolean | full sql queries print to the screen in the display=none div |
+| read type | "read" or "readall" | You can choosing read type (single or multiple rows) |
+| table name | boolean | if you want get result with table name set to 'true' |
+| file name | string | You can define your cache file name. example: db-[filename]-[md5 hash].html |
+| time | integer | if you set this parameter, this value override to global $connect->set_cachetime() value | 
+
+
+### Requests
+
+System check your in cache folder, if doesn't exist this queries cache, first time system will going to sql server and will create a html file in cache folder. When getting next queries won't going to the sql server.
+
+```php
+
+$selectcache = $connect->cache("yourtable", "name,age" , " where id='5' ", "error occured", false, "readall", "product_detail", "90");
+$readcache = $connect->readall($selectcache, false);
+
+// we are overriding global value. this query will cache 90 minutes
+// this queries name will be like this:  db-product_detail-[md5 hashs of query].html
+
+// return values
+$readcache[0] // true
+$readcache[1] 
+
+// array $readcache[1][0]['name'] = "John" , $readcache[1][0]['age'] = "23" 
+// array $readcache[1][1]['name'] = "Marco" , $readcache[1][1]['age'] = "18" 
+// array $readcache[1][2]['name'] = "Reus" , $readcache[1][2]['age'] = "19"
+
+```
+
+
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
