@@ -1,4 +1,4 @@
-# Class Database
+# MySQLi and PDO database class
 
 You can make any sql queries with this class.
 
