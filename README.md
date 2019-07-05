@@ -10,7 +10,9 @@ No needs any installation. Only put this file in your folder on server.
 ## Configuration
 
 ```php
-include("class-database.php");
+require("mysqli-class.php");
+#or
+require("pdo-class.php");
 
 define("DB_HOST", 'localhost');
 define("DB_NAME", 'example_db');
